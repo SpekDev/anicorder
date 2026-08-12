@@ -1,0 +1,25 @@
+Toast .-information {
+	color: $success
+}
+
+Toast .-error {
+	color: $error
+}
+
+Interactive_Manage_Flyout {
+	align: center middle;
+}
+
+Interactive_Manage_Flyout #modal_title {
+	align: left top;
+}
+
+Interactive_Manage_Flyout #modal_episodes {
+	align: right top;
+}
+
+Interactive_Manage_Flyout > Container {
+	width: auto;
+	height: auto;
+	padding: 3 2;
+}
