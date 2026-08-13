@@ -62,6 +62,12 @@ class Manage_Anime_Screen(Screen):
 		elif isinstance(focused, Input):
 			self.focus_next()
 
+	def on_screen_resume(self) -> None:
+		data_table = self.query_one("#manage_data_table", DataTable)
+		data_table.clear()
+		self.app.manage_offset = 0
+		self.app.action_query()
+
 class Record_Anime_Screen(Screen):
 
 	def compose(self) -> ComposeResult:
@@ -170,7 +176,8 @@ class Anicorder(App):
 		self.theme = "beastie"
 		self.conn = None
 		self.manage_offset = 0
-		self.count_label = self.query_one("#completed-count", Label)
+		self.completed_anime_count_label = self.query_one("#completed-count", Label)
+		self.total_anime_count_label = self.query_one("#total-count", Label)
 		self.prev_specific_search = False
 
 	def compose(self) -> ComposeResult:
@@ -180,7 +187,9 @@ class Anicorder(App):
 		yield Button("Connect To DB", id='home_db', variant='default', classes="home")
 		yield Button("Quit", id='home_quit', variant='default', classes="home")
 
-		yield Label("Completed Animes: 0",id="completed-count")
+		with Horizontal():
+			yield Label("Completed Animes: 0",id="completed-count")
+			yield Label("Total Animes: 0",id="total-count")
 		yield Footer()
 
 	def action_connect_db(self):
@@ -199,13 +208,14 @@ class Anicorder(App):
 
 				with self.conn.cursor() as cursor:
 					cursor.execute(r"SELECT COUNT(*) FROM anime WHERE status='completed'")
-					count = cursor.fetchone()[0]
-
+					completed_count = cursor.fetchone()[0]
+					cursor.execute(r"SELECT COUNT(*) FROM anime")
+					total_count = cursor.fetchone()[0]
 				self.pop_screen()
-
 				self.screen.query_one("#home_manage", Button).disabled = False
 				self.screen.query_one("#home_record", Button).disabled = False
-				self.count_label.update(f"Completed Animes: {count}")
+				self.completed_anime_count_label.update(f"Completed Animes: {completed_count}")
+				self.total_anime_count_label.update(f"Total Animes: {total_count}")
 
 			except mariadb.Error as e:
 
@@ -256,6 +266,17 @@ class Anicorder(App):
 		with self.conn.cursor() as cur:
 			cur.execute(r"SELECT * FROM anime WHERE id = ?", (anime_id,))
 			return cur.fetchone()
+
+	def refresh_anime_count(self):
+
+		with self.conn.cursor() as cursor:
+			cursor.execute(r"SELECT COUNT(*) FROM anime WHERE status='completed'")
+			completed_count = cursor.fetchone()[0]
+			cursor.execute(r"SELECT COUNT(*) FROM anime")
+			total_count = cursor.fetchone()[0]
+
+		self.completed_anime_count_label.update(f"Completed Animes: {completed_count}")
+		self.total_anime_count_label.update(f"Total Animes: {total_count}")
 
 	def record_check_anime(self, title):
 		with self.conn.cursor() as cur:
@@ -316,6 +337,7 @@ class Anicorder(App):
 
 	def action_quit(self) -> None:
 		if len(self.screen_stack) > 1:
+			self.refresh_anime_count()
 			self.pop_screen()
 		else:
 			self.close_db()
