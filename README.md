@@ -1,5 +1,7 @@
 # Anicorder
 
+![GitHub Release](https://img.shields.io/github/v/release/spekdev/anicorder)
+
 Anicorder is a terminal-based anime tracker built with Python and Textual. It uses MariaDB to store anime entries and provides a keyboard-driven TUI for managing your watchlist.
 
 ## Features
