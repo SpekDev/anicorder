@@ -80,9 +80,6 @@ class Record_Anime_Screen(Screen):
     def compose(self) -> ComposeResult:
         yield Button("<- Back", id="record_anime_back_button", action="app.quit")
         yield Input(id="record_anime_input", placeholder="Enter English Title")
-        yield Button(
-            "Record Anime", id="record_anime_button", disabled=True, classes="invalid"
-        )
 
     def on_input_submitted(self):
         normal_input = titlecase(
@@ -161,6 +158,7 @@ class Interactive_Manage_Flyout(ModalScreen):
         ) = anime
 
     def compose(self) -> ComposeResult:
+        yield Button("<- Back", id="flyout_back_button", action="app.quit")
         with Container():
             yield Label(f"{self.english_title}", id="modal_title")
             with Horizontal(id="episode_timestamp_container"):
@@ -204,6 +202,10 @@ class Interactive_Manage_Flyout(ModalScreen):
                 action=f"app.modify_entry({self.anime_id})",
                 disabled=True,
             )
+
+    def on_mount(self) -> None:
+        # self.query_one("#episode_entry", MaskedInput).focus()
+        self.focus_next()
 
     def on_input_changed(self) -> None:
         self.changed = True
