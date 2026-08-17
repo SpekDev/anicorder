@@ -472,7 +472,8 @@ class Anicorder(App):
 
     def action_quit(self) -> None:
         if len(self.screen_stack) > 1:
-            self.refresh_anime_count()
+            if self.conn != None:
+                self.refresh_anime_count()
             self.pop_screen()
         else:
             self.close_db()
