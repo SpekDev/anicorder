@@ -9,3 +9,7 @@ dependencies = [
     "textual>=8.2.8",
     "titlecase>=2.4.1",
 ]
+
+[tool.ruff.format]
+indent-style = "tab"
+line-ending = "lf"
